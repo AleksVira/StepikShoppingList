@@ -8,7 +8,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import ru.virarnd.stepshoplist.R
-import ru.virarnd.stepshoplist.data.ShopItem
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,9 +31,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.shopList.observe(this) {
             Log.d(TAG, "onCreate: $it")
         }
-
-
-        viewModel.getShopList()
 
     }
 }
