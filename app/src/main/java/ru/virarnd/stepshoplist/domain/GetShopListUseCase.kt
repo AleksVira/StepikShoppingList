@@ -1,10 +1,10 @@
 package ru.virarnd.stepshoplist.domain
 
-import ru.virarnd.stepshoplist.data.ShopItem
+import androidx.lifecycle.LiveData
 
 class GetShopListUseCase(private val shopListRepository: ShopListRepository) {
 
-    fun getShopList(): List<ShopItem> {
+    fun getShopList(): LiveData<List<ShopItem>> {
         return shopListRepository.getShopList()
     }
 }
