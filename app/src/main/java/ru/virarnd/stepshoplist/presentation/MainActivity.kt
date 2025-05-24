@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "onCreate: $it")
         }
 
+
         viewModel.getShopList()
 
     }
