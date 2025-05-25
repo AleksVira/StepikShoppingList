@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import ru.virarnd.stepshoplist.R
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MainViewModel
+    private lateinit var shopListAdapter: ShopListAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +29,27 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
             Log.d(TAG, "onCreate: $it")
+            shopListAdapter.shopList = it
         }
-
     }
+
+    private fun setupRecyclerView() {
+        shopListAdapter = ShopListAdapter()
+        var rvShoplist = findViewById<RecyclerView>(R.id.rv_shop_list).apply {
+            adapter = shopListAdapter
+            recycledViewPool.setMaxRecycledViews(R.layout.item_shop_enabled, ShopListAdapter.MAX_POOL_SIZE)
+            recycledViewPool.setMaxRecycledViews(R.layout.item_shop_disabled, ShopListAdapter.MAX_POOL_SIZE)
+        }
+        shopListAdapter.shopItemLongClickListener = {
+            viewModel.changeEnableState(it)
+        }
+        shopListAdapter.shopItemClickListener = {
+            Log.d(TAG, "setupRecyclerView: clicked ${it.name}")
+        }
+    }
+
 }

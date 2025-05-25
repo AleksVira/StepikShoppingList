@@ -2,6 +2,7 @@ package ru.virarnd.stepshoplist.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlin.random.Random
 import ru.virarnd.stepshoplist.domain.ShopItem
 import ru.virarnd.stepshoplist.domain.ShopListRepository
 
@@ -14,12 +15,15 @@ object ShopListRepositoryImpl: ShopListRepository {
     private var autoIncrementId = 0
 
     init {
-        repeat(10, { i ->
-            val item = ShopItem(name = "Name $i", count = i, enabled = true)
+        repeat(1000, { i ->
+            val item = ShopItem(
+                name = "Name $i",
+                count = i,
+                enabled = Random.nextBoolean()
+            )
             addShopItem(item)
         })
     }
-
 
     override fun addShopItem(item: ShopItem) {
         if (item.id == ShopItem.UNDEFINED_ID) {
