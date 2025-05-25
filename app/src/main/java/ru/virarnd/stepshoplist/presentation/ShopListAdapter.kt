@@ -1,34 +1,23 @@
 package ru.virarnd.stepshoplist.presentation
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.ListAdapter
 import ru.virarnd.stepshoplist.R
 import ru.virarnd.stepshoplist.domain.ShopItem
 
-class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
+class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCallback()) {
 
     companion object {
         const val MAX_POOL_SIZE = 5
     }
 
-    var shopList = listOf<ShopItem>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
     var shopItemLongClickListener: ((ShopItem) -> Unit)? = null
-
     var shopItemClickListener: ((ShopItem) -> Unit)? = null
+    var shopListItemRemoveListener: ((ShopItem) -> Unit)? = null
 
-    override fun getItemCount() = shopList.size
-
-    override fun getItemViewType(position: Int): Int = if (shopList[position].enabled) {
+    override fun getItemViewType(position: Int): Int = if (getItem(position).enabled) {
         R.layout.item_shop_enabled
     } else {
         R.layout.item_shop_disabled
@@ -51,7 +40,7 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
-        val shopItem = shopList[position]
+        val shopItem = getItem(position)
         holder.tvName.text = shopItem.name
         holder.tvCount.text = shopItem.count.toString()
         holder.itemView.setOnLongClickListener {
@@ -69,10 +58,8 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         }
     }
 
-    class ShopItemViewHolder(view: View) : ViewHolder(view) {
-        val tvName = view.findViewById<TextView>(R.id.tv_name)
-        val tvCount = view.findViewById<TextView>(R.id.tv_count)
+    fun removeItem(position: Int) {
+        shopListItemRemoveListener?.invoke(getItem(position))
     }
-
 
 }
