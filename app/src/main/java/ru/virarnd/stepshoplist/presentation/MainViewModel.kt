@@ -2,7 +2,7 @@ package ru.virarnd.stepshoplist.presentation
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.virarnd.stepshoplist.data.ShopItem
+import ru.virarnd.stepshoplist.domain.ShopItem
 import ru.virarnd.stepshoplist.data.ShopListRepositoryImpl
 import ru.virarnd.stepshoplist.domain.DeleteShopItemUseCase
 import ru.virarnd.stepshoplist.domain.EditShopItemUseCase
@@ -18,22 +18,15 @@ class MainViewModel : ViewModel() {
 
     private val editShopItemUseCase = EditShopItemUseCase(repository)
 
-    val shopList = MutableLiveData<List<ShopItem>>()
-
-    fun getShopList() {
-        val list = getShopListUseCase.getShopList()
-        shopList.value = list
-    }
+    val shopList = getShopListUseCase.getShopList()
 
     fun deleteItem(shopItem: ShopItem) {
         deleteShopItemUseCase.deleteShopItem(shopItem)
-        getShopList()
     }
 
     fun changeEnableState(item: ShopItem) {
         val newItem = item.copy(enabled = !item.enabled)
         editShopItemUseCase.editShopItem(newItem)
-        getShopList()
     }
 
 

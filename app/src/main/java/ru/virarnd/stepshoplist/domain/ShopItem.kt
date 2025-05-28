@@ -1,4 +1,4 @@
-package ru.virarnd.stepshoplist.data
+package ru.virarnd.stepshoplist.domain
 
 data class ShopItem(
     val name: String,

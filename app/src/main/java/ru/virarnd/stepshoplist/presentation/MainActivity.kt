@@ -7,16 +7,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ru.virarnd.stepshoplist.R
-import ru.virarnd.stepshoplist.data.ShopItem
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private val TAG: String = this::class.java.name
+        private val TAG: String = "MyTAG"
     }
 
     private lateinit var viewModel: MainViewModel
+    private lateinit var shopListAdapter: ShopListAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,14 +31,43 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        setupRecyclerView()
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
-            Log.d(TAG, "onCreate: $it")
+            Log.d(TAG, "ShopList: $it")
+            shopListAdapter.submitList(it)
         }
+        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
+        buttonAddItem.setOnClickListener {
+            startActivity(ShopItemActivity.newIntentAddItem(this))
+        }
+    }
 
+    private fun setupRecyclerView() {
+        shopListAdapter = ShopListAdapter()
+        val rvShopList = findViewById<RecyclerView>(R.id.rv_shop_list).apply {
+            adapter = shopListAdapter
+            recycledViewPool.setMaxRecycledViews(R.layout.item_shop_enabled, ShopListAdapter.MAX_POOL_SIZE)
+            recycledViewPool.setMaxRecycledViews(R.layout.item_shop_disabled, ShopListAdapter.MAX_POOL_SIZE)
+        }
+        setListeners()
 
-        viewModel.getShopList()
+        val removeCallback = SwipeToDeleteCallback(shopListAdapter)
+        ItemTouchHelper(removeCallback).attachToRecyclerView(rvShopList)
 
     }
+
+    private fun setListeners() {
+        shopListAdapter.shopItemLongClickListener = {
+            viewModel.changeEnableState(it)
+        }
+        shopListAdapter.shopItemClickListener = {
+            Log.d(TAG, "setupRecyclerView: clicked ${it.name}")
+            startActivity(ShopItemActivity.newIntentEditItem(this, it.id))
+        }
+        shopListAdapter.shopListItemRemoveListener = {
+            viewModel.deleteItem(it)
+        }
+    }
+
 }

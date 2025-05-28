@@ -1,6 +1,6 @@
 package ru.virarnd.stepshoplist.domain
 
-import ru.virarnd.stepshoplist.data.ShopItem
+import androidx.lifecycle.LiveData
 
 interface ShopListRepository {
 
@@ -12,6 +12,6 @@ interface ShopListRepository {
 
     fun getShopItem(itemId: Int): ShopItem
 
-    fun getShopList(): List<ShopItem>
+    fun getShopList(): LiveData<List<ShopItem>>
 
 }
