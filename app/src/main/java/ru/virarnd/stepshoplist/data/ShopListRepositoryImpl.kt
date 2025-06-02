@@ -15,7 +15,7 @@ object ShopListRepositoryImpl: ShopListRepository {
     private var autoIncrementId = 0
 
     init {
-        repeat(1000, { i ->
+        repeat(50, { i ->
             val item = ShopItem(
                 name = "Name $i",
                 count = i,
