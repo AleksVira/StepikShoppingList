@@ -2,17 +2,19 @@ package ru.virarnd.stepshoplist.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ru.virarnd.stepshoplist.R
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     companion object {
         private val TAG: String = "MyTAG"
@@ -20,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var shopListAdapter: ShopListAdapter
-
+    private var shopItemContainerView: FragmentContainerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +33,8 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        shopItemContainerView = findViewById(R.id.shop_item_container)
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
@@ -39,8 +43,16 @@ class MainActivity : AppCompatActivity() {
         }
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         buttonAddItem.setOnClickListener {
-            startActivity(ShopItemActivity.newIntentAddItem(this))
+            if (isVerticalLayout()) {
+                startActivity(ShopItemActivity.newIntentAddItem(this))
+            } else {
+                launchItemFragment(ShopItemFragment.newInstanceAddItem())
+            }
         }
+    }
+
+    private fun isVerticalLayout(): Boolean {
+        return shopItemContainerView == null
     }
 
     private fun setupRecyclerView() {
@@ -51,10 +63,8 @@ class MainActivity : AppCompatActivity() {
             recycledViewPool.setMaxRecycledViews(R.layout.item_shop_disabled, ShopListAdapter.MAX_POOL_SIZE)
         }
         setListeners()
-
         val removeCallback = SwipeToDeleteCallback(shopListAdapter)
         ItemTouchHelper(removeCallback).attachToRecyclerView(rvShopList)
-
     }
 
     private fun setListeners() {
@@ -62,12 +72,32 @@ class MainActivity : AppCompatActivity() {
             viewModel.changeEnableState(it)
         }
         shopListAdapter.shopItemClickListener = {
-            Log.d(TAG, "setupRecyclerView: clicked ${it.name}")
-            startActivity(ShopItemActivity.newIntentEditItem(this, it.id))
+            if (isVerticalLayout()) {
+                startActivity(ShopItemActivity.newIntentEditItem(this, it.id))
+            } else {
+                launchItemFragment(ShopItemFragment.newInstanceEditItem(it.id))
+            }
         }
         shopListAdapter.shopListItemRemoveListener = {
             viewModel.deleteItem(it)
         }
+    }
+
+    private fun launchItemFragment(newFragment: ShopItemFragment) {
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .add(R.id.shop_item_container, newFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun onFragmentEditingFinished() {
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        supportFragmentManager.popBackStack()
+    }
+
+    override fun onEditingFinished() {
+        onFragmentEditingFinished()
     }
 
 }
