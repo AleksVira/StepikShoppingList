@@ -2,6 +2,7 @@ package ru.virarnd.stepshoplist.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ru.virarnd.stepshoplist.R
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     companion object {
         private val TAG: String = "MyTAG"
@@ -88,6 +89,15 @@ class MainActivity : AppCompatActivity() {
             .add(R.id.shop_item_container, newFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun onFragmentEditingFinished() {
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        supportFragmentManager.popBackStack()
+    }
+
+    override fun onEditingFinished() {
+        onFragmentEditingFinished()
     }
 
 }

@@ -20,6 +20,7 @@ import ru.virarnd.stepshoplist.presentation.ShopItemActivity.Companion
 class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
+    private lateinit  var onEditingFinishedListener: OnEditingFinishedListener
 
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
@@ -52,6 +53,19 @@ class ShopItemFragment : Fragment() {
                     putInt(SHOP_ITEM_ID, shopItemId)
                 }
             }
+        }
+    }
+
+    interface OnEditingFinishedListener {
+        fun onEditingFinished()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnEditingFinishedListener) {
+            onEditingFinishedListener = context
+        } else {
+            throw java.lang.RuntimeException("Activity should implement OnEditingFinishedListener")
         }
     }
 
@@ -151,7 +165,7 @@ class ShopItemFragment : Fragment() {
             tilName.error = message
         }
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
-            activity?.onBackPressedDispatcher?.onBackPressed()
+            onEditingFinishedListener.onEditingFinished()
         }
     }
 
