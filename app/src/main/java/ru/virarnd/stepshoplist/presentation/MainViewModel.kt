@@ -1,16 +1,20 @@
 package ru.virarnd.stepshoplist.presentation
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.virarnd.stepshoplist.domain.ShopItem
 import ru.virarnd.stepshoplist.data.ShopListRepositoryImpl
 import ru.virarnd.stepshoplist.domain.DeleteShopItemUseCase
 import ru.virarnd.stepshoplist.domain.EditShopItemUseCase
 import ru.virarnd.stepshoplist.domain.GetShopListUseCase
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val getShopListUseCase = GetShopListUseCase(repository)
 
@@ -21,13 +25,16 @@ class MainViewModel : ViewModel() {
     val shopList = getShopListUseCase.getShopList()
 
     fun deleteItem(shopItem: ShopItem) {
-        deleteShopItemUseCase.deleteShopItem(shopItem)
+        viewModelScope.launch {
+            deleteShopItemUseCase.deleteShopItem(shopItem)
+        }
     }
 
     fun changeEnableState(item: ShopItem) {
-        val newItem = item.copy(enabled = !item.enabled)
-        editShopItemUseCase.editShopItem(newItem)
+        viewModelScope.launch {
+            val newItem = item.copy(enabled = !item.enabled)
+            editShopItemUseCase.editShopItem(newItem)
+        }
     }
-
 
 }
